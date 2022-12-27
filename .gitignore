@@ -14,7 +14,6 @@ out/
 releases/
 .classpath
 .project
-gradle-local.properties
 environment.properties
 assetInstallTime.properties
 /web/input
