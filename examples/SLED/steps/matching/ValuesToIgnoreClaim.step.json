@@ -1,0 +1,44 @@
+{
+  "batchSize": 100,
+  "sourceDatabase": "data-hub-FINAL",
+  "targetDatabase": "data-hub-FINAL",
+  "targetEntityType": "ClaimFHIR",
+  "sourceQuery": "cts.collectionQuery(['HarmonizeClaims'])",
+  "collections": ["ValuesToIgnoreClaim"],
+  "permissions": "data-hub-common,read,data-hub-common,update",
+  "targetFormat": "json",
+  "matchRulesets": [
+    {
+      "name": "diagnosisDescription - Exact",
+      "weight": 6,
+      "reduce": false,
+      "fuzzyMatch": false,
+      "matchRules": [
+        {
+          "entityPropertyPath": "diagnosisDescription",
+          "matchType": "exact",
+          "options": {},
+          "exclusionLists": ["diagnosisDescriptionIgnore"]
+        }
+      ]
+    }
+  ],
+  "thresholds": [
+    { "thresholdName": "ValuesToIgnore", "action": "merge", "score": 9 }
+  ],
+  "name": "ValuesToIgnoreClaim",
+  "description": "",
+  "collection": ["HarmonizeClaims"],
+  "selectedSource": "collection",
+  "additionalCollections": [],
+  "headers": {},
+  "interceptors": [],
+  "provenanceGranularityLevel": "off",
+  "customHook": {},
+  "stepDefinitionName": "default-matching",
+  "stepDefinitionType": "matching",
+  "stepId": "ValuesToIgnoreClaim-matching",
+  "acceptsBatch": true,
+  "stepUpdate": false,
+  "lastUpdated": "2023-05-05T14:05:05.6799509-05:00"
+}

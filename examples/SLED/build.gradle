@@ -70,6 +70,25 @@ task createDictionaries(type: com.marklogic.gradle.task.ServerEvalTask) {
   '''
 }
 
+task loadListToIgnore(type: com.marklogic.gradle.task.ServerEvalTask) {
+  description 'Load required files for values to ignore functionality'
+  javascript = '''
+  declareUpdate();
+  const permissions = [
+      xdmp.permission('data-hub-developer', 'update'),
+      xdmp.permission('data-hub-operator', 'read'),
+      xdmp.permission('data-hub-operator', 'update')
+    ]
+    const collections = [
+      'http://marklogic.com/data-hub/exclusion-list',
+    ]
+    const uri1  = '/exclusionLists/IgnoreByName.step.json'
+    const list1 = {"name": "diagnosisDescriptionIgnore", "values": ["Falls"], "selectedSource": "query", "lastUpdated": "2023-05-05T10:56:23.2947379-05:00"}
+
+  xdmp.documentInsert(uri1, list1, {permissions,collections})
+  '''
+}
+
 task loadImages(type: com.marklogic.gradle.task.MlcpTask) {
   doFirst {
     database = mlFinalDbName
@@ -176,6 +195,7 @@ task resetDemo {
   dependsOn resetDBs
   dependsOn loadImages
   dependsOn createDictionaries
+  dependsOn loadListToIgnore
   dependsOn createRedactionRules
   dependsOn loadICD
 }
@@ -187,6 +207,7 @@ task install {
   dependsOn createRedactionRules
   dependsOn loadImages
   dependsOn createDictionaries
+  dependsOn loadListToIgnore
   dependsOn loadICD
   dependsOn runFlows
 }
