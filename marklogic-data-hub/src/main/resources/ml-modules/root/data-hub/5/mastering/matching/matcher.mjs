@@ -89,7 +89,7 @@ function buildMatchSummary(matchable, content) {
     if (fn.startsWith(contentObject.uri, "/com.marklogic.smart-mastering/")) {
       continue;
     }
-    const contentValue = contentObject.value;
+    const contentValue = contentObject.value.toObject();
     let ignoreContent = false;
     for (const matchRuleset of matchRulesetDefinitions) {
       if (contentValue.envelope && contentValue.envelope.instance && contentValue.envelope.instance.info) {
@@ -107,18 +107,20 @@ function buildMatchSummary(matchable, content) {
           }
         }
       }
-      const queryHashes = matchRuleset.queryHashes(contentObject.value, matchRuleset.fuzzyMatch());
-      for (const queryHash of queryHashes) {
-        let uriTriples = triplesByUri.get(contentObject.uri);
-        if (!uriTriples) {
-          uriTriples = [];
-          triplesByUri.set(contentObject.uri, uriTriples);
+      if(!ignoreContent){
+        const queryHashes = matchRuleset.queryHashes(contentObject.value, matchRuleset.fuzzyMatch());
+        for (const queryHash of queryHashes) {
+          let uriTriples = triplesByUri.get(contentObject.uri);
+          if (!uriTriples) {
+            uriTriples = [];
+            triplesByUri.set(contentObject.uri, uriTriples);
+          }
+          const uriToHashTriple = sem.triple(contentObject.uri, queryHashPredicate, queryHash);
+          const hashToRulesetTriple = sem.triple(queryHash, hashBelongToPredicate, matchRuleset.name());
+          inMemoryTriples.push(uriToHashTriple, hashToRulesetTriple);
+          uriTriples.push(uriToHashTriple, hashToRulesetTriple);
         }
-        const uriToHashTriple = sem.triple(contentObject.uri, queryHashPredicate, queryHash);
-        const hashToRulesetTriple = sem.triple(queryHash, hashBelongToPredicate, matchRuleset.name());
-        inMemoryTriples.push(uriToHashTriple, hashToRulesetTriple);
-        uriTriples.push(uriToHashTriple, hashToRulesetTriple);
-      }
+      }      
     }
     let documentIsMerged = false;
     const filterQuery = matchable.filterQuery(contentObject.value);
