@@ -30,6 +30,7 @@ describe("Create and verify load steps, map step and flows with interceptors & c
     cy.loginAsDeveloper().withRequest();
     cy.deleteSteps("ingestion", "loadOrder");
     cy.deleteSteps("mapping", "mapOrder");
+    cy.deleteSteps("mapping", "mapCustomer");
     cy.deleteFlows("orderFlow");
     cy.resetTestUser();
   });
@@ -225,7 +226,7 @@ describe("Create and verify load steps, map step and flows with interceptors & c
     mappingStepDetail.entitySettingsLink().should("be.visible").click();
     advancedSettingsDialog.getTargetPermissions().should("have.value", "data-hub-common,read");
     advancedSettingsDialog.setTargetPermissions("data-hub-common,read,data-hub-common,update");
-    advancedSettingsDialog.cancelEntitySettings();
+    advancedSettingsDialog.saveEntitySettings();
 
     mappingStepDetail.goBackToCurateHomePage();
   });
@@ -245,55 +246,57 @@ describe("Create and verify load steps, map step and flows with interceptors & c
     loadPage.confirmationOptions("Ok").click();
     loadPage.duplicateStepErrorMessageClosed();
   });
-});
 
-/*  it("Verify link to settings, Add mapstep to existing flow, Run the flow and explore the data", () => {
-    // link to settings and back
+
+  it("Verify link to settings, Add map step to existing flow, Run the flow and explore the data", () => {
+    cy.logout();
+    cy.loginAsDeveloperV2().withRequest();
+    cy.visit("/tiles/curate");
+    cy.waitForAsyncRequest();
+    curatePage.toggleEntityTypeId("Order");
+
+
     curatePage.openMappingStepDetail("Order", mapStep);
     cy.waitUntil(() => mappingStepDetail.expandEntity().should("be.visible")).click();
     mappingStepDetail.stepSettingsLink().click();
     cy.waitUntil(() => createEditMappingDialog.stepDetailsLink().click());
-
-    cy.wait(1000);
     cy.waitForAsyncRequest();
     cy.waitUntil(() => mappingStepDetail.expandEntity().should("be.visible"));
 
-    //Go back to curate homepage
     mappingStepDetail.goBackToCurateHomePage();
-
-    //open the order entity panel
-    curatePage.toggleEntityTypeId("Order");
-
     curatePage.openExistingFlowDropdown("Order", mapStep);
-    curatePage.getExistingFlowFromDropdown(flowName).click();
+    curatePage.getExistingFlowFromDropdown(mapStep, flowName).click();
     curatePage.addStepToFlowConfirmationMessage();
     curatePage.confirmAddStepToFlow(mapStep, flowName);
-
     cy.waitForAsyncRequest();
-    runPage.runStep(mapStep);
+    runPage.runStep(mapStep, flowName);
     cy.waitForAsyncRequest();
-    cy.verifyStepRunResult("success", "Mapping", mapStep);
-    runPage.explorerLink().click();
+    runPage.verifyStepRunResult("mapOrder", "success");
+    runPage.explorerLink(mapStep).click();
+    cy.waitForAsyncRequest();
+    browsePage.waitForSpinnerToDisappear();
+    browsePage.clickTableView();
     browsePage.getTableViewSourceIcon().click();
     cy.contains("mappedOrderDate");
     cy.contains("categoryCode");
-
-    //Verifying the properties added by load and mapping custom hooks respectively
     cy.contains("primaryKey");
     cy.contains("uriFromCustomHook");
   });
+
   it("Create a map step under another entity", () => {
     // create mapping step
     toolbar.getCurateToolbarIcon().click();
-    cy.waitUntil(() => curatePage.getEntityTypePanel("Customer").should("be.visible"));
+    curatePage.getEntityTypePanel("Customer").should("be.visible");
     curatePage.toggleEntityTypeId("Customer");
-    cy.waitUntil(() => curatePage.addNewStep().click());
+    curatePage.addNewStep("Customer").click();
     createEditMappingDialog.setMappingName("mapCustomer");
     createEditMappingDialog.setSourceRadio("Query");
     createEditMappingDialog.setQueryInput(`cts.collectionQuery(['loadCustomersJSON'])`);
     createEditMappingDialog.saveButton().click({force: true});
     cy.waitForAsyncRequest();
-    cy.waitUntil(() => curatePage.dataPresent().should("be.visible"));
+    curatePage.dataPresent().should("be.visible");
     //Go back to curate homepage
     mappingStepDetail.goBackToCurateHomePage();
-  });*/
+  });
+
+});
