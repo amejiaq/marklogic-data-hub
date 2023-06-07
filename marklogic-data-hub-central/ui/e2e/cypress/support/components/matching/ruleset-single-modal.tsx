@@ -135,6 +135,10 @@ class RulesetSingleModal {
     return cy.get(`[aria-label=${label}]`);
   }
 
+  toggleSteps() {
+    return cy.findByLabelText("toggle-steps").click();
+  }
+
 }
 
 const rulesetSingleModal = new RulesetSingleModal();

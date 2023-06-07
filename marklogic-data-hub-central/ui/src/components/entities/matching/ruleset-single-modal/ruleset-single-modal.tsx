@@ -185,11 +185,31 @@ const MatchRulesetModal: React.FC<Props> = props => {
     return excludeList.find(item => item.name === name);
   };
 
+  const checkExcludeListReference = (references: Array<string>, listNameToDelete: string) => {
+    let someReferenceInTheSameStep = true;
+    if (references?.length === 1 && references[0] === curationOptions.activeStep.stepArtifact.name) {
+      if (Object.keys(curationRuleset).length !== 0) {
+        let matchRulesets = [...curationOptions.activeStep.stepArtifact.matchRulesets];
+        matchRulesets.splice(curationRuleset["index"], 1);
+        matchRulesets.forEach(ruleSet => {
+          if (Array.isArray(ruleSet.matchRules)) {
+            ruleSet.matchRules.forEach(rule => {
+              if (Array.isArray(rule.exclusionLists)) {
+                someReferenceInTheSameStep = rule.exclusionLists.some(list => list === listNameToDelete);
+              }
+            });
+          }
+        });
+      }
+    }
+    return someReferenceInTheSameStep;
+  };
+
   const fetchReferencesExcludeValuesList = async (listName: string) => {
     await getReferencesExcludeValuesList(listName).then(res => {
       let references = res.data.stepNames;
       setReferencesListValuesToIgnore(res.data.stepNames);
-      if (references?.length > 0) {
+      if (references?.length > 0  && checkExcludeListReference(references, listName)) {
         setDeleteWarning(true);
       } else {
         setListToDelete(listName);
