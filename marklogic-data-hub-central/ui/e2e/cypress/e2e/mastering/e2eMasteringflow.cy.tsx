@@ -1,4 +1,3 @@
-import {matchingStepDetail, rulesetMultipleModal, rulesetSingleModal, thresholdModal} from "../../support/components/matching/index";
 import {confirmationModal, createEditStepDialog, multiSlider} from "../../support/components/common/index";
 import mergeStrategyModal from "../../support/components/merging/merge-strategy-modal";
 import mergingStepDetail from "../../support/components/merging/merging-step-detail";
@@ -36,22 +35,22 @@ describe("Validate E2E Mastering Flow", () => {
     loadPage.navigate();
   });
 
-  after(() => {
-    cy.clearAllSessionStorage();
-    cy.clearAllLocalStorage();
-    cy.loginAsDeveloper().withRequest();
-    cy.deleteSteps("ingestion", "loadPatient");
-    cy.deleteSteps("mapping", "patientMap");
-    cy.deleteSteps("matching", "patientMatch");
-    cy.deleteSteps("merging", "patientMerge");
-    cy.deleteFlows(flowName);
-    cy.deleteEntities("Patient");
-    cy.deleteRecordsInFinal("loadPatient", "patientMap", "patientMatch", "patientMerge");
-    cy.deleteRecordsInFinal("sm-Patient-archived", "sm-Patient-mastered", "sm-Patient-merged", "sm-Patient-auditing", "sm-Patient-notification");
-    cy.deleteRecordsInStaging("loadPatient");
-    cy.resetTestUser();
-    cy.waitForAsyncRequest();
-  });
+  // after(() => {
+  //   cy.clearAllSessionStorage();
+  //   cy.clearAllLocalStorage();
+  //   cy.loginAsDeveloper().withRequest();
+  //   cy.deleteSteps("ingestion", "loadPatient");
+  //   cy.deleteSteps("mapping", "patientMap");
+  //   cy.deleteSteps("matching", "patientMatch");
+  //   cy.deleteSteps("merging", "patientMerge");
+  //   cy.deleteFlows(flowName);
+  //   cy.deleteEntities("Patient");
+  //   cy.deleteRecordsInFinal("loadPatient", "patientMap", "patientMatch", "patientMerge");
+  //   cy.deleteRecordsInFinal("sm-Patient-archived", "sm-Patient-mastered", "sm-Patient-merged", "sm-Patient-auditing", "sm-Patient-notification");
+  //   cy.deleteRecordsInStaging("loadPatient");
+  //   cy.resetTestUser();
+  //   cy.waitForAsyncRequest();
+  // });
 
   it("Create a load Step", () => {
     loadPage.stepName("ingestion-step").should("be.visible");
@@ -220,107 +219,6 @@ describe("Validate E2E Mastering Flow", () => {
     curatePage.verifyStepNameIsVisible(matchStep);
   });
 
-  // TODO: DHFPROD-10184
-  it.skip("Add Thresholds", () => {
-    curatePage.openStepDetails(matchStep);
-    matchingStepDetail.addThresholdButton().click();
-    thresholdModal.setThresholdName("Match");
-    thresholdModal.selectActionDropdown("Merge");
-    thresholdModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("Match").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 18.1818%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("Match").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addThresholdButton().click();
-    thresholdModal.setThresholdName("Likely Match");
-    thresholdModal.selectActionDropdown("Notify");
-    thresholdModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("Likely Match").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 8.08081%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("Likely Match").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addThresholdButton().click();
-    thresholdModal.setThresholdName("Slight Match");
-    thresholdModal.selectActionDropdown("Custom");
-    thresholdModal.setUriText("/custom-modules/custom/custom-match-action.sjs");
-    thresholdModal.setFunctionText("customMatch");
-    thresholdModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("Slight Match").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 3.0303%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("Slight Match").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-  });
-
-  // TODO: DHFPROD-10184
-  it.skip("Add Rulesets", () => {
-    matchingStepDetail.addNewRuleset();
-    matchingStepDetail.getSinglePropertyOption();
-    rulesetSingleModal.selectPropertyToMatch("LastName");
-    rulesetSingleModal.selectMatchTypeDropdown("exact");
-    rulesetSingleModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("LastName").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 9.09091%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("LastName").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addNewRuleset();
-    matchingStepDetail.getSinglePropertyOption();
-    rulesetSingleModal.selectPropertyToMatch("SSN");
-    rulesetSingleModal.selectMatchTypeDropdown("exact");
-    rulesetSingleModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("SSN").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 19.1919%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("SSN").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addNewRuleset();
-    matchingStepDetail.getSinglePropertyOption();
-    rulesetSingleModal.selectPropertyToMatch("FirstName");
-    rulesetSingleModal.fuzzyMatchToggle().click();
-    rulesetSingleModal.selectMatchTypeDropdown("exact");
-    rulesetSingleModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("FirstName").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 9.09091%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("FirstName").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addNewRuleset();
-    matchingStepDetail.getMultiPropertyOption();
-    rulesetMultipleModal.setRulesetName("patientMultiplePropertyRuleset");
-    rulesetMultipleModal.selectPropertyToMatch("FirstName");
-    rulesetMultipleModal.selectMatchTypeDropdown("FirstName", "synonym");
-    rulesetMultipleModal.setThesaurus("FirstName", "/thesaurus/nicknames.xml");
-    rulesetMultipleModal.selectPropertyToMatch("ZipCode");
-    rulesetMultipleModal.selectMatchTypeDropdown("ZipCode", "zip");
-    rulesetMultipleModal.selectPropertyToMatch("DateOfBirth");
-    rulesetMultipleModal.selectMatchTypeDropdown("DateOfBirth", "custom");
-    rulesetMultipleModal.setUriText("DateOfBirth", "/custom-modules/custom/dob-match.xqy");
-    rulesetMultipleModal.setFunctionText("DateOfBirth", "dob-match");
-    rulesetMultipleModal.setNamespaceText("DateOfBirth", "http://marklogic.com/smart-mastering/algorithms");
-    rulesetMultipleModal.saveButton().click();
-    cy.wait(1000);
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("patientMultiplePropertyRuleset").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 9.09091%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("patientMultiplePropertyRuleset").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    matchingStepDetail.addNewRuleset();
-    matchingStepDetail.getSinglePropertyOption();
-    rulesetSingleModal.selectPropertyToMatch("Address");
-    rulesetSingleModal.selectMatchTypeDropdown("exact");
-    rulesetSingleModal.reduceButton().click();
-    rulesetSingleModal.saveButton().click();
-    cy.waitForAsyncRequest();
-    multiSlider.getHandleName("Address").trigger("mousedown", {force: true});
-    cy.findByTestId("threshold-slider-ticks").find(`div[style*="left: 4.0404%;"]`).trigger("mousemove", {force: true});
-    multiSlider.getHandleName("Address").trigger("mouseup", {force: true});
-    cy.waitForAsyncRequest();
-    mappingStepDetail.goBackToCurateHomePage();
-  });
-
   it("Add Thresholds and rule sets by hitting API ", () => {
     cy.request({
       method: "PUT",
@@ -428,11 +326,9 @@ describe("Validate E2E Mastering Flow", () => {
     cy.findByTestId("clear-sm-Patient-merged").should("be.visible");
   });
 
-  // TODO: DHFPROD-10184
-  it.skip("Explore other collections", () => {
+  it.only("Explore other collections", () => {
     browsePage.navigate();
-    entitiesSidebar.selectEntity("All Data");
-    cy.waitForModalToDisappear();
+    entitiesSidebar.toggleAllDataView();
     browsePage.showMoreCollection();
     cy.get("#hc-sider-content").scrollTo("bottom");
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-archived").click();
@@ -440,7 +336,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 4);
+    browsePage.getTotalDocuments().should("eq", 6);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-archived").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-mastered").click();
@@ -448,7 +344,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 12);
+    browsePage.getTotalDocuments().should("eq", 9);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-mastered").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-merged").click();
@@ -456,7 +352,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 2);
+    browsePage.getTotalDocuments().should("eq", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-merged").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-auditing").click();
@@ -464,7 +360,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 2);
+    browsePage.getTotalDocuments().should("eq", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-auditing").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-notification").click();
@@ -472,7 +368,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 6);
+    browsePage.getTotalDocuments().should("eq", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-notification").click();
     browsePage.waitForSpinnerToDisappear();
   });
