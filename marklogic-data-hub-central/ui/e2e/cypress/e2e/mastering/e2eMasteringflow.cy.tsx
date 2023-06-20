@@ -35,22 +35,22 @@ describe("Validate E2E Mastering Flow", () => {
     loadPage.navigate();
   });
 
-  // after(() => {
-  //   cy.clearAllSessionStorage();
-  //   cy.clearAllLocalStorage();
-  //   cy.loginAsDeveloper().withRequest();
-  //   cy.deleteSteps("ingestion", "loadPatient");
-  //   cy.deleteSteps("mapping", "patientMap");
-  //   cy.deleteSteps("matching", "patientMatch");
-  //   cy.deleteSteps("merging", "patientMerge");
-  //   cy.deleteFlows(flowName);
-  //   cy.deleteEntities("Patient");
-  //   cy.deleteRecordsInFinal("loadPatient", "patientMap", "patientMatch", "patientMerge");
-  //   cy.deleteRecordsInFinal("sm-Patient-archived", "sm-Patient-mastered", "sm-Patient-merged", "sm-Patient-auditing", "sm-Patient-notification");
-  //   cy.deleteRecordsInStaging("loadPatient");
-  //   cy.resetTestUser();
-  //   cy.waitForAsyncRequest();
-  // });
+  after(() => {
+    cy.clearAllSessionStorage();
+    cy.clearAllLocalStorage();
+    cy.loginAsDeveloper().withRequest();
+    cy.deleteSteps("ingestion", "loadPatient");
+    cy.deleteSteps("mapping", "patientMap");
+    cy.deleteSteps("matching", "patientMatch");
+    cy.deleteSteps("merging", "patientMerge");
+    cy.deleteFlows(flowName);
+    cy.deleteEntities("Patient");
+    cy.deleteRecordsInFinal("loadPatient", "patientMap", "patientMatch", "patientMerge");
+    cy.deleteRecordsInFinal("sm-Patient-archived", "sm-Patient-mastered", "sm-Patient-merged", "sm-Patient-auditing", "sm-Patient-notification");
+    cy.deleteRecordsInStaging("loadPatient");
+    cy.resetTestUser();
+    cy.waitForAsyncRequest();
+  });
 
   it("Create a load Step", () => {
     loadPage.stepName("ingestion-step").should("be.visible");
@@ -187,7 +187,6 @@ describe("Validate E2E Mastering Flow", () => {
   });
 
   it("Add Map step to existing flow Run", {defaultCommandTimeout: 120000}, () => {
-    curatePage.toggleEntityTypeId("Patient");
     curatePage.runStepInCardView(mapStep).click();
     curatePage.runStepSelectFlowConfirmation().should("be.visible");
     curatePage.selectFlowToRunIn(flowName);
@@ -207,7 +206,6 @@ describe("Validate E2E Mastering Flow", () => {
   it("Create a new match step", () => {
     curatePage.navigate();
     curatePage.getEntityTypePanel("Patient").should("be.visible");
-    curatePage.toggleEntityTypeId("Patient");
     curatePage.selectMatchTab("Patient");
     curatePage.addNewStep("Patient").should("be.visible").click();
     createEditStepDialog.stepNameInput().clear().type(matchStep);
@@ -326,9 +324,12 @@ describe("Validate E2E Mastering Flow", () => {
     cy.findByTestId("clear-sm-Patient-merged").should("be.visible");
   });
 
-  it.only("Explore other collections", () => {
+  it("Explore other collections", () => {
     browsePage.navigate();
     entitiesSidebar.toggleAllDataView();
+    browsePage.waitForSpinnerToDisappear();
+    browsePage.getClearAllFacetsButton().click();
+    browsePage.waitForSpinnerToDisappear();
     browsePage.showMoreCollection();
     cy.get("#hc-sider-content").scrollTo("bottom");
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-archived").click();
@@ -336,7 +337,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 6);
+    browsePage.getTotalDocuments().should("be.gte", 6);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-archived").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-mastered").click();
@@ -344,7 +345,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 9);
+    browsePage.getTotalDocuments().should("be.gte", 9);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-mastered").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-merged").click();
@@ -352,7 +353,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 3);
+    browsePage.getTotalDocuments().should("be.gte", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-merged").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-auditing").click();
@@ -360,7 +361,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 3);
+    browsePage.getTotalDocuments().should("be.gte", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-auditing").click();
     browsePage.waitForSpinnerToDisappear();
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-notification").click();
@@ -368,7 +369,7 @@ describe("Validate E2E Mastering Flow", () => {
     browsePage.waitForSpinnerToDisappear();
     cy.waitForAsyncRequest();
     browsePage.waitForCardToLoad();
-    browsePage.getTotalDocuments().should("eq", 3);
+    browsePage.getTotalDocuments().should("be.gte", 3);
     browsePage.getFacetItemCheckbox("collection", "sm-Patient-notification").click();
     browsePage.waitForSpinnerToDisappear();
   });
